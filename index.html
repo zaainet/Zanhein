@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Secure Payment</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-soft: #eff6ff;
+            --bg-body: #f1f5f9;
+            --surface: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --radius: 20px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            font-family: 'Padauk', 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            margin: 0; padding: 20px 15px;
+            display: flex; justify-content: center;
+        }
+
+        .card {
+            background: var(--surface);
+            width: 100%; max-width: 420px;
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page { display: none; animation: fadeIn 0.4s ease; flex-grow: 1; }
+        .page.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h2 { font-size: 1.4rem; line-height: 1.5; margin-bottom: 10px; }
+        
+        .method-list { flex-grow: 1; }
+        .method-card {
+            display: flex; align-items: center; padding: 15px;
+            border: 2px solid var(--border); border-radius: 16px;
+            cursor: pointer; transition: 0.3s; margin-bottom: 12px;
+        }
+        .method-card:hover { border-color: var(--primary); background: var(--primary-soft); }
+        .method-logo { width: 50px; height: 50px; border-radius: 10px; margin-right: 15px; }
+        .method-name { font-weight: 700; flex-grow: 1; }
+
+        .verify-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+        }
+        .verify-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #6366f1 0%, #2563eb 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        .back-btn { margin-bottom: 20px; cursor: pointer; color: var(--primary); font-weight: 600; display: inline-block; }
+        .info-box { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 20px; }
+        .info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .info-label { font-size: 0.85rem; color: var(--text-sub); }
+        .info-val { font-weight: 700; color: var(--text-main); }
+
+        .input-group { margin-bottom: 15px; }
+        .input-field {
+            width: 100%; padding: 14px; border: 1.5px solid var(--border);
+            border-radius: 12px; font-size: 1rem; outline: none;
+        }
+        .input-field:focus { border-color: var(--primary); }
+
+        .upload-area {
+            border: 2px dashed var(--border); border-radius: 12px;
+            padding: 20px; text-align: center; cursor: pointer; position: relative; margin-bottom: 20px;
+        }
+        #preview-img { width: 100%; border-radius: 8px; display: none; margin-top: 10px; }
+
+        .btn-submit {
+            width: 100%; padding: 16px; background: var(--primary);
+            color: white; border: none; border-radius: 12px;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer;
+        }
+
+        .modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content { background: white; padding: 20px; border-radius: 20px; width: 90%; max-width: 320px; text-align: center; }
+        .qr-display { width: 100%; border-radius: 10px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div id="page1" class="page active">
+        <div class="header">
+            <h2>ဆရာစျာန်ဟိန်း<br>ထံသို့ငွေလွှဲရန်ရွေးချယ်ပါ</h2>
+            <p style="color:var(--text-sub)">အသုံးပြုမည့် ဘဏ်စနစ်ကို နှိပ်ပါ</p>
+        </div>
+        
+        <div class="method-list">
+            <div class="method-card" onclick="goToStep2('KBZ' Pay', '09752889167', 'Daw San San Maw', 'https://i.ibb.co/TBSYL7z3/IMG-20260621-131229-410.jpg')">
+                <img src="https://i.ibb.co/nNzjmfNV/Screenshot-20260116-023617.jpg" class="method-logo">
+                <span class="method-name">KBZ Pay</span>
+                <i class="fas fa-chevron-right" style="color:#cbd5e1"></i>
+            </div>
+            
+            <div class="method-card" onclick="goToStep2('Wave Money', '09 752 889 167', 'U Zaw Wai', 'https://i.ibb.co/jPBZM9ty/IMG-20260621-131231-364.jpg')">
+                <img src="https://i.ibb.co/1GzvLyQc/Screenshot-20260116-023411.jpg" class="method-logo">
+                <span class="method-name">Wave Money</span>
+                <i class="fas fa-chevron-right" style="color:#cbd5e1"></i>
+            </div>
+        </div>
+
+        <div class="verify-section">
+            <a href="https://t.me/Hanma1257" class="verify-btn" target="_blank">
+                <i class="fas fa-user-check"></i>
+                ဆရာ့စျာန်ဟိန်း ထံသို့ဆက်သွယ်ရန်
+            </a>
+            <p style="font-size: 0.75rem; color: var(--text-sub); margin-top: 10px;">
+                <i class="fas fa-shield-alt"></i> Telegramမှတစ်ဆင့်
+            </p>
+        </div>
+    </div>
+
+    <div id="page2" class="page">
+        <div class="back-btn" onclick="location.reload()"><i class="fas fa-arrow-left"></i> နောက်သို့</div>
+        
+        <div class="info-box">
+            <div class="info-row">
+                <span id="display-provider" class="info-val" style="color:var(--primary)"></span>
+                <button onclick="showQRModal()" style="border:none; background:none; color:var(--primary); cursor:pointer;"><i class="fas fa-qrcode"></i> QR ကြည့်ရန်</button>
+            </div>
+            <div class="info-row">
+                <span class="info-label">အမည်</span>
+                <span id="display-name" class="info-val"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ဖုန်းနံပါတ်</span>
+                <div>
+                    <span id="display-num" class="info-val"></span>
+                    <i class="far fa-copy" onclick="copyNum()" style="margin-left:8px; cursor:pointer; color:var(--primary)"></i>
+                </div>
+            </div>
+        </div>
+
+        <form id="uploadForm">
+            <div class="input-group">
+                <input type="text" id="remark" class="input-field" placeholder="မှတ်ချက် (သို့) အမည်" required>
+            </div>
+            <div class="input-group">
+                <input type="text" id="amount-display" class="input-field" placeholder="ငွေပမာဏ (ကျပ်)" required>
+                <input type="hidden" id="amount-actual">
+            </div>
+            
+            <div class="upload-area" onclick="document.getElementById('file-input').click()">
+                <div id="upload-prompt">
+                    <i class="fas fa-cloud-upload-alt fa-2xl" style="color:var(--primary); margin-bottom:10px;"></i>
+                    <p style="margin:0; font-size:0.9rem;">ငွေလွှဲဖြတ်ပိုင်း တင်ရန် နှိပ်ပါ</p>
+                </div>
+                <img id="preview-img">
+                <input type="file" id="file-input" hidden accept="image/*" onchange="handleFile(this.files[0])">
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn-submit">အတည်ပြုမည်</button>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="qr-modal" onclick="this.style.display='none'">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 id="qr-title" style="margin-top:0"></h3>
+        <img id="qr-image-display" class="qr-display">
+        <button class="btn-submit" onclick="document.getElementById('qr-modal').style.display='none'">ပိတ်မည်</button>
+    </div>
+</div>
+
+<script>
+    const IMGBB_API_KEY = 'eac7eb727b0af055e65f3565c2493ddb';
+    const TELEGRAM_TOKEN = '8767171657:AAFrbA9TpUVnW50nf0sPWf4zdCflrH4hIYM';
+    const TELEGRAM_CHAT_ID = '1847861994';
+
+    let currentQR = "";
+
+    // parameter ၄ ခုပဲ လက်ခံထားတာကို သေချာစစ်ပါ
+    function goToStep2(provider, num, name, qrUrl) {
+        document.getElementById('display-provider').innerText = provider;
+        document.getElementById('display-num').innerText = num;
+        document.getElementById('display-name').innerText = name;
+        currentQR = qrUrl; // ဒီနေရာမှာ QR image link ကို သိမ်းလိုက်တာပါ
+        document.getElementById('qr-title').innerText = provider + " QR";
+        
+        document.getElementById('page1').classList.remove('active');
+        document.getElementById('page2').classList.add('active');
+    }
+
+    function copyNum() {
+        const num = document.getElementById('display-num').innerText;
+        navigator.clipboard.writeText(num.replace(/\s/g, ''));
+        Swal.fire({ icon: 'success', title: 'ကူးယူပြီးပါပြီ', toast: true, position: 'top', showConfirmButton: false, timer: 1500 });
+    }
+
+    function showQRModal() {
+        if(!currentQR) {
+            Swal.fire('Error', 'QR ပုံ မတွေ့ပါ', 'error');
+            return;
+        }
+        document.getElementById('qr-image-display').src = currentQR;
+        document.getElementById('qr-modal').style.display = 'flex';
+    }
+
+    const amountDisplay = document.getElementById('amount-display');
+    const amountActual = document.getElementById('amount-actual');
+    
+    amountDisplay.addEventListener('input', function(e) {
+        let val = e.target.value.replace(/[^0-9]/g, '');
+        amountActual.value = val;
+        e.target.value = val ? parseInt(val).toLocaleString() : '';
+    });
+
+    function handleFile(file) {
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('preview-img').style.display = 'block';
+            document.getElementById('upload-prompt').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const fileInput = document.getElementById('file-input');
+        if(fileInput.files.length === 0) {
+            Swal.fire('သတိပေးချက်', 'ငွေလွှဲပြေစာပုံ ထည့်သွင်းပေးပါ', 'warning'); return;
+        }
+
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ခဏစောင့်ပါ...';
+
+        try {
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            const imgRes = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: 'POST', body: formData });
+            const imgJson = await imgRes.json();
+            const imgUrl = imgJson.data.url;
+
+            const remark = document.getElementById('remark').value;
+            const amount = amountDisplay.value;
+            const provider = document.getElementById('display-provider').innerText;
+            
+            const msg = `💰 *ငွေသွင်းလွှာအသစ်*\n\n👤 အမည်: \`${remark}\`\n💵 ပမာဏ: \`${amount} Ks\`\n🏦 ဘဏ်: \`${provider}\`\n🔗 [ပြေစာကြည့်ရန်](${imgUrl})`;
+
+            await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    chat_id: TELEGRAM_CHAT_ID,
+                    photo: imgUrl,
+                    caption: msg,
+                    parse_mode: 'Markdown'
+                })
+            });
+
+            Swal.fire('အောင်မြင်ပါသည်', 'success').then(() => {
+                location.reload();
+            });
+
+        } catch (err) {
+            Swal.fire('Error', 'တစ်ခုခုလွဲချော်နေပါသည်။ ပြန်ကြိုးစားကြည့်ပါ။', 'error');
+            btn.disabled = false;
+            btn.innerText = "အတည်ပြုမည်";
+        }
+    });
+</script>
+
+</body>
+</html>
